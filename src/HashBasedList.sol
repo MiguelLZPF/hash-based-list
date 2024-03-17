@@ -11,7 +11,7 @@ abstract contract HashBasedList {
    * Example
    * hash(namespace, position) --> Payload
    *   positionHash --> Payload
-   * mapping(bytes32 => Payload) private _service;
+   * mapping(bytes32 => Payload) private _payload;
    */
   // Hash(namespace, id) --> position
   //      idHash --> position
@@ -21,22 +21,14 @@ abstract contract HashBasedList {
 
   function _addHbl(bytes32 namespace, bytes32 id) internal {
     bytes32 idHash = _calculateIdHash(namespace, id);
-    _addHbl(idHash);
-  }
-
-  function _addHbl(bytes32 idHash) internal {
-    _hblPositionById[idHash] = _hblLength[bytes32(0)];
-    _hblLength[bytes32(0)]++;
+    _hblPositionById[idHash] = _hblLength[namespace];
+    _hblLength[namespace]++;
   }
 
   function _removeHbl(bytes32 namespace, bytes32 id) internal {
     bytes32 idHash = _calculateIdHash(namespace, id);
-    _removeHbl(idHash);
-  }
-
-  function _removeHbl(bytes32 idHash) internal {
     _hblPositionById[idHash] = 0;
-    _hblLength[bytes32(0)]--;
+    _hblLength[namespace]--;
   }
 
   function _setHblPosition(bytes32 namespace, bytes32 id, uint8 position) internal {

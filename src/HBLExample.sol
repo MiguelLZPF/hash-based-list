@@ -8,16 +8,8 @@ contract HBLExample is HashBasedList {
     _addHbl(namespace, id);
   }
 
-  function addHbl(bytes32 idHash) external {
-    _addHbl(idHash);
-  }
-
   function removeHbl(bytes32 namespace, bytes32 id) external {
     _removeHbl(namespace, id);
-  }
-
-  function removeHbl(bytes32 idHash) external {
-    _removeHbl(idHash);
   }
 
   function setHblPosition(bytes32 namespace, bytes32 id, uint8 position) external {

@@ -30,7 +30,7 @@ contract HBLTest is Test {
     assertEq(hashBasedList.getHblLength(EMPTY_BYTES32), 0);
   }
 
-  function test_should_addHblById() public {
+  function test_should_addHbl() public {
     //* 🗂️ Arrange ⬇
     vm.startPrank(user);
     // Initial state check
@@ -40,6 +40,19 @@ contract HBLTest is Test {
     //* ☑️ Assert ⬇
     // Final state check
     assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 1);
+  }
+
+  function test_should_removeHblById() public {
+    //* 🗂️ Arrange ⬇
+    vm.startPrank(user);
+    hashBasedList.addHbl(DEFAULT_NAMESPACE, DEFAULT_ID);
+    // Initial state check
+    assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 1);
+    //* 🎬 Act ⬇
+    hashBasedList.removeHbl(DEFAULT_NAMESPACE, DEFAULT_ID);
+    //* ☑️ Assert ⬇
+    // Final state check
+    assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 0);
   }
 
   function PayMe_ShouldNot_WhenBalance0() public {
