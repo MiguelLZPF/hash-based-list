@@ -132,7 +132,7 @@ contract HBLTest is Test {
     bytes32 positionHash = hashBasedList.calculatePositioHashById(DEFAULT_NAMESPACE, DEFAULT_ID);
     //* ☑️ Assert ⬇
     // Final state check
-    assertEq(positionHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, uint(0))));
+    assertEq(positionHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, uint8(0))));
   }
 
   function test_should_calculatePositionHash() public {
@@ -143,6 +143,6 @@ contract HBLTest is Test {
     bytes32 positionHash = hashBasedList.calculatePositionHash(DEFAULT_NAMESPACE, 0);
     //* ☑️ Assert ⬇
     // Final state check
-    assertEq(positionHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, uint(0))));
+    assertEq(positionHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, uint8(0))));
   }
 }
