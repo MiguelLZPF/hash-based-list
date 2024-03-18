@@ -13,6 +13,7 @@ contract HBLTest is Test {
   bytes32 private constant EMPTY_BYTES32 = bytes32(0);
   bytes32 private constant DEFAULT_NAMESPACE = bytes32("ThisIsANamespace");
   bytes32 private constant DEFAULT_ID = bytes32("ThisIsAnId");
+  bytes32 private constant OTHER_ID = bytes32("ThisIsAnotherId");
   // Variables
   HashBasedList public hashBasedList;
   address admin = DEFAULT_SENDER;
@@ -42,7 +43,7 @@ contract HBLTest is Test {
     assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 1);
   }
 
-  function test_should_removeHblById() public {
+  function test_should_removeHbl() public {
     //* 🗂️ Arrange ⬇
     vm.startPrank(user);
     hashBasedList.addHbl(DEFAULT_NAMESPACE, DEFAULT_ID);
@@ -55,23 +56,93 @@ contract HBLTest is Test {
     assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 0);
   }
 
-  function PayMe_ShouldNot_WhenBalance0() public {
-    address noBalanceAddress = payable(address(0));
-    vm.startPrank(noBalanceAddress);
+  function test_should_setHblPosition() public {
+    //* 🗂️ Arrange ⬇
+    vm.startPrank(user);
+    hashBasedList.addHbl(DEFAULT_NAMESPACE, DEFAULT_ID);
+    hashBasedList.addHbl(DEFAULT_NAMESPACE, OTHER_ID);
     // Initial state check
-    uint256 initBalanceUser = address(noBalanceAddress).balance;
-    uint256 initBalanceAdmin = address(admin).balance;
-    assertEq(initBalanceUser, 0);
-    assertGt(initBalanceAdmin, 1);
-    // Event check
-    vm.expectRevert();
-    // Pay the admin
-    // hashBasedList.payMe{ value: amount }();
+    assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 2);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID), 0);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, OTHER_ID), 1);
+    //* 🎬 Act ⬇
+    hashBasedList.setHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID, 1);
+    hashBasedList.setHblPosition(DEFAULT_NAMESPACE, OTHER_ID, 0);
+    //* ☑️ Assert ⬇
     // Final state check
-    uint256 finalBalanceUser = address(noBalanceAddress).balance;
-    uint256 finalBalanceAdmin = address(admin).balance;
-    assertEq(finalBalanceUser, initBalanceUser);
-    assertEq(finalBalanceAdmin, initBalanceAdmin);
-    vm.stopPrank();
+    assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 2);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID), 1);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, OTHER_ID), 0);
+  }
+
+  function test_shouldNot_setHblPosition_WhenPositionOutOfRange() public {
+    //* 🗂️ Arrange ⬇
+    vm.startPrank(user);
+    hashBasedList.addHbl(DEFAULT_NAMESPACE, DEFAULT_ID);
+    // Initial state check
+    assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 1);
+    //* 🎬 Act ⬇
+    vm.expectRevert();
+    hashBasedList.setHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID, 1);
+    vm.expectRevert();
+    hashBasedList.setHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID, 2);
+    //* ☑️ Assert ⬇
+    // Final state check
+    assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 1);
+  }
+
+  function test_should_getHblLength() public {
+    //* 🗂️ Arrange ⬇
+    vm.startPrank(user);
+    hashBasedList.addHbl(DEFAULT_NAMESPACE, DEFAULT_ID);
+    // Initial state check
+    assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 1);
+    //* 🎬 Act ⬇
+    uint8 length = hashBasedList.getHblLength(DEFAULT_NAMESPACE);
+    //* ☑️ Assert ⬇
+    // Final state check
+    assertEq(length, 1);
+  }
+
+  function test_should_calculateHashes() public {
+    //* 🗂️ Arrange ⬇
+    vm.startPrank(user);
+    hashBasedList.addHbl(DEFAULT_NAMESPACE, DEFAULT_ID);
+    // Initial state check
+    assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 1);
+    //* 🎬 Act ⬇
+    (bytes32 idHash, bytes32 positionHash, uint8 position) = hashBasedList.calculateHashes(
+      DEFAULT_NAMESPACE,
+      DEFAULT_ID
+    );
+    //* ☑️ Assert ⬇
+    // Final state check
+    assertEq(idHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, DEFAULT_ID)));
+    assertEq(positionHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, position)));
+    assertEq(position, 0);
+  }
+
+  function test_should_calculatePositionHashById() public {
+    //* 🗂️ Arrange ⬇
+    vm.startPrank(user);
+    hashBasedList.addHbl(DEFAULT_NAMESPACE, DEFAULT_ID);
+    // Initial state check
+    assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 1);
+    //* 🎬 Act ⬇
+    bytes32 positionHash = hashBasedList.calculatePositioHashById(DEFAULT_NAMESPACE, DEFAULT_ID);
+    //* ☑️ Assert ⬇
+    // Final state check
+    assertEq(positionHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, uint(0))));
+  }
+
+  function test_should_calculatePositionHash() public {
+    //* 🗂️ Arrange ⬇
+    vm.startPrank(user);
+    // Initial state check
+    //* 🎬 Act ⬇
+    bytes32 positionHash = hashBasedList.calculatePositionHash(DEFAULT_NAMESPACE, 0);
+    //* ☑️ Assert ⬇
+    // Final state check
+    assertEq(positionHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, uint(0))));
   }
 }

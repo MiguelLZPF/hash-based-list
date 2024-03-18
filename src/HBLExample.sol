@@ -16,10 +16,6 @@ contract HBLExample is HashBasedList {
     _setHblPosition(namespace, id, position);
   }
 
-  function setHblPosition(bytes32 idHash, uint8 position) external {
-    _setHblPosition(idHash, position);
-  }
-
   function getHblLength(bytes32 namespace) external view returns (uint8) {
     return _getHblLength(namespace);
   }
@@ -31,7 +27,7 @@ contract HBLExample is HashBasedList {
     return _calculateHashes(namespace, id);
   }
 
-  function calculatePositioHash(bytes32 namespace, bytes32 id) external view returns (bytes32) {
+  function calculatePositioHashById(bytes32 namespace, bytes32 id) external view returns (bytes32) {
     return _calculatePositionHash(namespace, id);
   }
 
@@ -40,5 +36,9 @@ contract HBLExample is HashBasedList {
     uint8 position
   ) external pure returns (bytes32) {
     return _calculatePositionHash(namespace, position);
+  }
+
+  function getHblPosition(bytes32 namespace, bytes32 id) external view returns (uint8) {
+    return _getHblPosition(namespace, id);
   }
 }

@@ -33,11 +33,13 @@ abstract contract HashBasedList {
 
   function _setHblPosition(bytes32 namespace, bytes32 id, uint8 position) internal {
     bytes32 idHash = _calculateIdHash(namespace, id);
-    _setHblPosition(idHash, position);
+    require(position < _hblLength[namespace], "HBL: position out of range");
+    _hblPositionById[idHash] = position;
   }
 
-  function _setHblPosition(bytes32 idHash, uint8 position) internal {
-    _hblPositionById[idHash] = position;
+  function _getHblPosition(bytes32 namespace, bytes32 id) internal view returns (uint8) {
+    bytes32 idHash = _calculateIdHash(namespace, id);
+    return _hblPositionById[idHash];
   }
 
   function _getHblLength(bytes32 namespace) internal view returns (uint8) {
