@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import { Test, console } from "forge-std/Test.sol";
 import { Deployment, DeploymentStoreInfo } from "@script/Configuration.s.sol";
+import { REVERT_OUT_OF_RANGE } from "@src/HashBasedList.sol";
 import { HBLExample as HashBasedList } from "@src/HBLExample.sol";
 import { HBLScript, DeployCommand } from "@script/HashBasedList.s.sol";
 
@@ -63,16 +64,17 @@ contract HBLTest is Test {
     hashBasedList.addHbl(DEFAULT_NAMESPACE, OTHER_ID);
     // Initial state check
     assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 2);
-    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID), 0);
-    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, OTHER_ID), 1);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID), 1);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, OTHER_ID), 2);
     //* 🎬 Act ⬇
-    hashBasedList.setHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID, 1);
-    hashBasedList.setHblPosition(DEFAULT_NAMESPACE, OTHER_ID, 0);
+    // Exchange positions
+    hashBasedList.setHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID, 2);
+    hashBasedList.setHblPosition(DEFAULT_NAMESPACE, OTHER_ID, 1);
     //* ☑️ Assert ⬇
     // Final state check
     assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 2);
-    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID), 1);
-    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, OTHER_ID), 0);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID), 2);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, OTHER_ID), 1);
   }
 
   function test_shouldNot_setHblPosition_WhenPositionOutOfRange() public {
@@ -82,10 +84,15 @@ contract HBLTest is Test {
     // Initial state check
     assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 1);
     //* 🎬 Act ⬇
-    vm.expectRevert();
-    hashBasedList.setHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID, 1);
-    vm.expectRevert();
+    // Cannot set position 0
+    vm.expectRevert(bytes(REVERT_OUT_OF_RANGE));
+    hashBasedList.setHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID, 0);
+    // Cannot set position > length
+    vm.expectRevert(bytes(REVERT_OUT_OF_RANGE));
     hashBasedList.setHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID, 2);
+    // Cannot set position >> length
+    vm.expectRevert(bytes(REVERT_OUT_OF_RANGE));
+    hashBasedList.setHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID, 150);
     //* ☑️ Assert ⬇
     // Final state check
     assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 1);
@@ -119,7 +126,7 @@ contract HBLTest is Test {
     // Final state check
     assertEq(idHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, DEFAULT_ID)));
     assertEq(positionHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, position)));
-    assertEq(position, 0);
+    assertEq(position, 1);
   }
 
   function test_should_calculatePositionHashById() public {
@@ -132,7 +139,7 @@ contract HBLTest is Test {
     bytes32 positionHash = hashBasedList.calculatePositioHashById(DEFAULT_NAMESPACE, DEFAULT_ID);
     //* ☑️ Assert ⬇
     // Final state check
-    assertEq(positionHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, uint8(0))));
+    assertEq(positionHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, uint8(1))));
   }
 
   function test_should_calculatePositionHash() public {
@@ -140,9 +147,9 @@ contract HBLTest is Test {
     vm.startPrank(user);
     // Initial state check
     //* 🎬 Act ⬇
-    bytes32 positionHash = hashBasedList.calculatePositionHash(DEFAULT_NAMESPACE, 0);
+    bytes32 positionHash = hashBasedList.calculatePositionHash(DEFAULT_NAMESPACE, 1);
     //* ☑️ Assert ⬇
     // Final state check
-    assertEq(positionHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, uint8(0))));
+    assertEq(positionHash, keccak256(abi.encodePacked(DEFAULT_NAMESPACE, uint8(1))));
   }
 }

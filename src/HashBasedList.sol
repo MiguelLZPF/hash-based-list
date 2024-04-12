@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0 <0.9.0;
 
-/**
- * Position hash: hash(namespace, position)
- * Id hash: hash(namespace, id)
- */
+//* Leyend 📜
+// Position hash: hash(namespace, position)
+// Id hash: hash(namespace, id)
+
+string constant REVERT_OUT_OF_RANGE = "HBL: position out of range";
 
 /**
  * @title HashBasedList
@@ -40,7 +41,7 @@ abstract contract HashBasedList {
    */
   function _addHbl(bytes32 namespace, bytes32 id) internal {
     bytes32 idHash = _calculateIdHash(namespace, id);
-    _hblPositionById[idHash] = _hblLength[namespace];
+    _hblPositionById[idHash] = _hblLength[namespace] + 1; //! Reserve 0 for non-existent --> Last position == length
     _hblLength[namespace]++;
   }
 
@@ -63,7 +64,7 @@ abstract contract HashBasedList {
    */
   function _setHblPosition(bytes32 namespace, bytes32 id, uint8 position) internal {
     bytes32 idHash = _calculateIdHash(namespace, id);
-    require(position < _hblLength[namespace], "HBL: position out of range");
+    require(position <= _hblLength[namespace] && position > 0, REVERT_OUT_OF_RANGE);
     _hblPositionById[idHash] = position;
   }
 
