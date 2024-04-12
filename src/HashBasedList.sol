@@ -39,9 +39,13 @@ abstract contract HashBasedList {
    * @param namespace The namespace of the item.
    * @param id The ID of the item.
    */
-  function _addHbl(bytes32 namespace, bytes32 id) internal {
-    bytes32 idHash = _calculateIdHash(namespace, id);
-    _hblPositionById[idHash] = _hblLength[namespace] + 1; //! Reserve 0 for non-existent --> Last position == length
+  function _addHbl(
+    bytes32 namespace,
+    bytes32 id
+  ) internal returns (bytes32 idHash, uint8 position) {
+    position = _hblLength[namespace] + 1; //! Reserve 0 for non-existent --> Last position == length
+    idHash = _calculateIdHash(namespace, id);
+    _hblPositionById[idHash] = position;
     _hblLength[namespace]++;
   }
 
