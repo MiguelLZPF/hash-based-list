@@ -5,8 +5,6 @@ pragma solidity >=0.8.0 <0.9.0;
 // Position hash: hash(namespace, position)
 // Id hash: hash(namespace, id)
 
-string constant REVERT_OUT_OF_RANGE = "HBL: position out of range";
-
 /**
  * @title HashBasedList
  * @dev Abstract contract for a hash-based list implementation.
@@ -18,6 +16,7 @@ abstract contract HashBasedList {
    *   positionHash --> Payload
    * mapping(bytes32 => Payload) private _payload;
    */
+
   /**
    * @dev Mapping to store the position of each item in the list.
    * @dev Mapping key: hash(namespace, id)
@@ -43,9 +42,13 @@ abstract contract HashBasedList {
     bytes32 namespace,
     bytes32 id
   ) internal returns (bytes32 idHash, uint8 position) {
+    // Calculate the position of the new item
     position = _hblLength[namespace] + 1; //! Reserve 0 for non-existent --> Last position == length
+    // Calculate the idHash
     idHash = _calculateIdHash(namespace, id);
+    // Store the position of the new item
     _hblPositionById[idHash] = position;
+    // Increment the length of the list for the given namespace
     _hblLength[namespace]++;
   }
 
@@ -53,22 +56,35 @@ abstract contract HashBasedList {
    * @dev Removes an item from the hash-based list.
    * @param namespace The namespace of the item.
    * @param id The ID of the item.
+   * @param latestId The ID of the latest item in the list.
    */
-  function _removeHbl(bytes32 namespace, bytes32 id) internal {
+  function _removeHbl(bytes32 namespace, bytes32 id, bytes32 latestId) internal {
+    // Calculate the idHash
     bytes32 idHash = _calculateIdHash(namespace, id);
+    // Calculate the latestIdHash
+    bytes32 latestIdHash = _calculateIdHash(namespace, latestId);
+    // Get the length of the list for the given namespace
+    uint256 length = _hblLength[namespace];
+    // Check that the latestId is the last item in the list
+    require(length == _hblPositionById[latestIdHash], "HBL: lId is not the last item");
+    // Set the position of the latest item to the position of the item to be removed
+    _hblPositionById[latestIdHash] = _hblPositionById[idHash];
+    // Set the position of the item to 0 == non-existent
     _hblPositionById[idHash] = 0;
+    // Decrement the length of the list for the given namespace
     _hblLength[namespace]--;
   }
 
   /**
    * @dev Sets the position of an item in the hash-based list.
+   *! @dev Is a "force" set, use with caution.
    * @param namespace The namespace of the item.
    * @param id The ID of the item.
    * @param position The new position of the item.
    */
   function _setHblPosition(bytes32 namespace, bytes32 id, uint8 position) internal {
     bytes32 idHash = _calculateIdHash(namespace, id);
-    require(position <= _hblLength[namespace] && position > 0, REVERT_OUT_OF_RANGE);
+    require(position <= _hblLength[namespace] && position > 0, "HBL: position out of range");
     _hblPositionById[idHash] = position;
   }
 
@@ -107,19 +123,6 @@ abstract contract HashBasedList {
     idHash = _calculateIdHash(namespace, id);
     position = _hblPositionById[idHash];
     positionHash = keccak256(abi.encodePacked(namespace, position));
-  }
-
-  /**
-   * @dev Calculates the hash of an item's position in the hash-based list.
-   * @param namespace The namespace of the item.
-   * @param id The ID of the item.
-   * @return positionHash The hash of the item's position.
-   */
-  function _calculatePositionHash(
-    bytes32 namespace,
-    bytes32 id
-  ) internal view returns (bytes32 positionHash) {
-    (, positionHash, ) = _calculateHashes(namespace, id);
   }
 
   /**

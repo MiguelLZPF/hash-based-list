@@ -8,8 +8,8 @@ contract HBLExample is HashBasedList {
     _addHbl(namespace, id);
   }
 
-  function removeHbl(bytes32 namespace, bytes32 id) external {
-    _removeHbl(namespace, id);
+  function removeHbl(bytes32 namespace, bytes32 id, bytes32 latestId) external {
+    _removeHbl(namespace, id, latestId);
   }
 
   function setHblPosition(bytes32 namespace, bytes32 id, uint8 position) external {
@@ -25,10 +25,6 @@ contract HBLExample is HashBasedList {
     bytes32 id
   ) external view returns (bytes32 idHash, bytes32 positionHash, uint8 position) {
     return _calculateHashes(namespace, id);
-  }
-
-  function calculatePositioHashById(bytes32 namespace, bytes32 id) external view returns (bytes32) {
-    return _calculatePositionHash(namespace, id);
   }
 
   function calculatePositionHash(
