@@ -12,6 +12,14 @@ contract HBLExample is HashBasedList {
     _removeHbl(namespace, id, latestId);
   }
 
+  function initHblLength(bytes32 namespace) external {
+    _initHblLength(namespace);
+  }
+
+  function initHblPosition(bytes32 namespace, bytes32 id) external {
+    _initHblPosition(namespace, id);
+  }
+
   function setHblPosition(bytes32 namespace, bytes32 id, uint8 position) external {
     _setHblPosition(namespace, id, position);
   }
