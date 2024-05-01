@@ -76,6 +76,26 @@ abstract contract HashBasedList {
   }
 
   /**
+   * @dev Initializes the length of the hash-based list for a given namespace.
+   * ! @dev Is a "force" set, use with caution.
+   * @param namespace The namespace for which to initialize the length.
+   */
+  function _initHblLength(bytes32 namespace) internal {
+    _hblLength[namespace] = 0;
+  }
+
+  /**
+   * @dev Initializes the position of an item in the hash-based list.
+   * ! @dev Is a "force" set, use with caution.
+   * @param namespace The namespace of the item.
+   * @param id The ID of the item.
+   */
+  function _initHblPosition(bytes32 namespace, bytes32 id) internal {
+    bytes32 idHash = _calculateIdHash(namespace, id);
+    _hblPositionById[idHash] = 0;
+  }
+
+  /**
    * @dev Sets the position of an item in the hash-based list.
    *! @dev Is a "force" set, use with caution.
    * @param namespace The namespace of the item.

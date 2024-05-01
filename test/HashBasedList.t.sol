@@ -105,6 +105,54 @@ contract HBLTest is Test {
     assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, YET_ANOTHER), 3);
   }
 
+  function test_should_initHblLength() public {
+    //* 🗂️ Arrange ⬇
+    vm.startPrank(user);
+    bytes32 ANOTHER_ID = "thisIsAnotherId";
+    bytes32 YET_ANOTHER = "thisIsYetAnotherId";
+    hashBasedList.addHbl(DEFAULT_NAMESPACE, DEFAULT_ID);
+    hashBasedList.addHbl(DEFAULT_NAMESPACE, ANOTHER_ID);
+    hashBasedList.addHbl(DEFAULT_NAMESPACE, YET_ANOTHER);
+    // Initial state check
+    assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 3);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID), 1);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, ANOTHER_ID), 2);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, YET_ANOTHER), 3);
+    //* 🎬 Act ⬇
+    hashBasedList.initHblLength(DEFAULT_NAMESPACE);
+    //* ☑️ Assert ⬇
+    // Final state check
+    assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 0);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID), 1);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, ANOTHER_ID), 2);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, YET_ANOTHER), 3);
+  }
+
+  function test_should_initHblPosition() public {
+    //* 🗂️ Arrange ⬇
+    vm.startPrank(user);
+    bytes32 ANOTHER_ID = "thisIsAnotherId";
+    bytes32 YET_ANOTHER = "thisIsYetAnotherId";
+    hashBasedList.addHbl(DEFAULT_NAMESPACE, DEFAULT_ID);
+    hashBasedList.addHbl(DEFAULT_NAMESPACE, ANOTHER_ID);
+    hashBasedList.addHbl(DEFAULT_NAMESPACE, YET_ANOTHER);
+    // Initial state check
+    assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 3);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID), 1);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, ANOTHER_ID), 2);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, YET_ANOTHER), 3);
+    //* 🎬 Act ⬇
+    hashBasedList.initHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID);
+    hashBasedList.initHblPosition(DEFAULT_NAMESPACE, ANOTHER_ID);
+    hashBasedList.initHblPosition(DEFAULT_NAMESPACE, YET_ANOTHER);
+    //* ☑️ Assert ⬇
+    // Final state check
+    assertEq(hashBasedList.getHblLength(DEFAULT_NAMESPACE), 3);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, DEFAULT_ID), 0);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, ANOTHER_ID), 0);
+    assertEq(hashBasedList.getHblPosition(DEFAULT_NAMESPACE, YET_ANOTHER), 0);
+  }
+
   function test_should_setHblPosition() public {
     //* 🗂️ Arrange ⬇
     vm.startPrank(user);
